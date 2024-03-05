@@ -5,6 +5,7 @@ import 'package:eshop/features/products/repository.dart';
 import 'package:eshop/theming.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -67,21 +68,41 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     context.read<ProductBloc>().add(FetchProducts());
+    _scrollController.addListener(_onScroll);
   }
 
-  List<String> dataList = [
-    'Apple',
-    'Banana',
-    'Cherry',
-    'Date',
-    'Elderberry',
-    'Fig',
-    'Grape'
-  ];
+  void _onScroll() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      var state = context.read<ProductBloc>().state;
+      if (state is ProductsLoaded) {
+        if (state.products.next != null) {
+          context.read<ProductBloc>().add(FetchProducts(
+                pageNo: state.products.next!.split('=')[1],
+              ));
+        }
+      }
+    } else if (_scrollController.position.pixels ==
+        _scrollController.position.minScrollExtent) {
+      var state = context.read<ProductBloc>().state;
+      if (state is ProductsLoaded) {
+        if (state.products.previous != null) {
+          var previousPage = state.products.previous?.split('=');
+          context.read<ProductBloc>().add(FetchProducts(
+                pageNo: (previousPage != null && previousPage.length > 1)
+                    ? previousPage[1]
+                    : '1',
+              ));
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,64 +124,91 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 );
               }
-              return const SizedBox();
+              return Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1,
+                  ),
+                ),
+              );
             },
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: <Widget>[
-            Container(
-              height: 100,
-              width: MediaQuery.of(context).size.width,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: const EdgeInsets.all(10),
-                    height: 50,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: Colors.black,
-                      ),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Theme.of(context).primaryColor,
-                          Theme.of(context).primaryColor.withOpacity(.5),
-                        ],
-                      ),
-                    ),
-                    child: ListTile(
-                      leading: Icon(Icons.category,
-                          size: 30, // IconThemeData
-                          color: Theme.of(context).iconTheme.color),
-                      title: Text('Item $index',
-                          style: Theme.of(context).textTheme.headlineMedium),
-                      subtitle: Text('Item $index',
-                          style: Theme.of(context).textTheme.bodyText1),
-                    ),
-                  );
-                },
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
               ),
+              child: Text('Drawer Header'),
             ),
-            Expanded(
-              child: BlocBuilder<ProductBloc, ProductState>(
-                builder: (context, state) {
-                  if (state is ProductsLoaded) {
-                    return Expanded(
-                      child: GridView.builder(
+            ListTile(
+              title: const Text('Item 1'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Item 2'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: SafeArea(
+          child: Column(
+            children: <Widget>[
+              SizedBox(
+                height: 100,
+                width: MediaQuery.of(context).size.width,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 10,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      margin: const EdgeInsets.all(10),
+                      height: 50,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.black.withOpacity(.2),
+                        ),
+                      ),
+                      child: ListTile(
+                        leading: Icon(Icons.category_rounded,
+                            size: 30, // IconThemeData
+                            color: Theme.of(context).iconTheme.color),
+                        title: Text('Item $index',
+                            style: Theme.of(context).textTheme.headlineMedium),
+                        subtitle: Text('Item $index',
+                            style: Theme.of(context).textTheme.bodyText1),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Expanded(
+                child: BlocBuilder<ProductBloc, ProductState>(
+                  builder: (context, state) {
+                    if (state is ProductsLoaded) {
+                      return GridView.builder(
+                        controller: _scrollController,
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           crossAxisSpacing: 10.0,
                           mainAxisSpacing: 10.0,
-                          childAspectRatio: 0.8,
+                          childAspectRatio: 0.9,
                         ),
                         itemCount: state.products.results!.length,
                         itemBuilder: (context, index) {
@@ -187,78 +235,115 @@ class _MyHomePageState extends State<MyHomePage> {
                                       fit: BoxFit.cover,
                                     ),
                                   ),
-                                  Padding(
-                                    padding: EdgeInsets.all(5.0),
-                                    child: Text(
-                                      product.name!,
-                                      style: TextStyle(
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight
-                                              .bold), // Reduced font size
+                                  Flexible(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Text(
+                                        product.name!,
+                                        style: const TextStyle(
+                                            fontSize: 10.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
                                     ),
                                   ),
                                   Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 5.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5.0),
                                     child: Text(
                                       product.description ?? '',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          fontSize: 12.0), // Reduced font size
+                                      style: const TextStyle(fontSize: 12.0),
                                     ),
                                   ),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        'Original Price: TSH ${product.price}', // Assuming 'originalPrice' is a field in your product model
-                                        style: TextStyle(
-                                          fontSize: 10.0, // Reduced font size
-                                          decoration:
-                                              TextDecoration.lineThrough,
-                                        ),
-                                      ),
-                                      if (product.discountPrice != null &&
-                                          product.discountPrice !=
-                                              0) // Check if discount is not null or zero
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 5.0),
-                                          child: Text(
-                                            'Discount: ${product.discountPrice}%', // Assuming 'discount' is a field in your product model
-                                            style: TextStyle(
-                                              fontSize:
-                                                  10.0, // Reduced font size
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                        ),
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 5.0, vertical: 10.0),
-                                        child: Text(
-                                          'Current Price: TSH ${product.price}', // Assuming 'price' is a field in your product model
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5.0),
+                                    child: Row(
+                                      children: [
+                                        const Text(
+                                          ' TSH ', // Assuming 'originalPrice' is a field in your product model
                                           style: TextStyle(
+                                            fontSize: 12.0,
+                                            fontWeight: FontWeight
+                                                .bold, // Reduced font size
+                                          ),
+                                        ),
+                                        Text(
+                                          ' ${product.price}', // Assuming 'originalPrice' is a field in your product model
+                                          style: TextStyle(
+                                            fontSize: 12.0,
+                                            fontWeight: FontWeight
+                                                .bold, // Reduced font size
+                                            decoration: (product
+                                                            .discountPrice !=
+                                                        null &&
+                                                    product.discountPrice != 0)
+                                                ? TextDecoration.lineThrough
+                                                : null,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (product.discountPrice != null &&
+                                      product.discountPrice !=
+                                          0) // Check if discount is not null or zero
+                                    if (product.discountPrice != null &&
+                                        product.discountPrice !=
+                                            0) // Check if discount is not null or zero
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5.0),
+                                        child: Text(
+                                          'Discount: ${product.discountPrice}%', // Assuming 'discount' is a field in your product model
+                                          style: const TextStyle(
                                             fontSize: 10.0, // Reduced font size
-                                            fontWeight: FontWeight.bold,
+                                            color: Colors.red,
                                           ),
                                         ),
                                       ),
-                                    ],
+                                  const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5.0),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          'Free delivery', // Assuming 'originalPrice' is a field in your product model
+                                          style: TextStyle(
+                                            fontSize: 8.0,
+                                            fontWeight: FontWeight
+                                                .bold, // Reduced font size
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                           );
                         },
+                      );
+                    } else if (state is ProductsError) {
+                      return Center(
+                        child: Text(state.message),
+                      );
+                    }
+                    return Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1,
+                        ),
                       ),
                     );
-                  }
-                  return const SizedBox();
-                },
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -297,18 +382,109 @@ class CustomSearchDelegate extends SearchDelegate {
     final results = dataList?.where((element) =>
         element!.name!.toLowerCase().contains(query.toLowerCase()));
 
-    return ListView(
-      children: results!
-          .map((result) => InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DetailsPage(result.name!)),
-                );
-              },
-              child: ListTile(title: Text(result!.name!))))
-          .toList(),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 10.0,
+          mainAxisSpacing: 10.0,
+          childAspectRatio: 0.8,
+        ),
+        itemCount: results!.length,
+        itemBuilder: (context, index) {
+          var result = results.elementAt(index);
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailsPage(result!.name!),
+                ),
+              );
+            },
+            child: Card(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AspectRatio(
+                    aspectRatio: 1.5,
+                    child: Image.network(
+                      result!.image ?? 'https://via.placeholder.com/150',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Text(
+                      result.description ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12.0),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Row(
+                      children: [
+                        const Text(
+                          ' TSH ', // Assuming 'originalPrice' is a field in your product model
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.bold, // Reduced font size
+                          ),
+                        ),
+                        Text(
+                          ' ${result.price}', // Assuming 'originalPrice' is a field in your product model
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold, // Reduced font size
+                            decoration: (result.discountPrice != null &&
+                                    result.discountPrice != 0)
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (result.discountPrice != null &&
+                      result.discountPrice !=
+                          0) // Check if discount is not null or zero
+                    if (result.discountPrice != null &&
+                        result.discountPrice !=
+                            0) // Check if discount is not null or zero
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                        child: Text(
+                          'Discount: ${result.discountPrice}%', // Assuming 'discount' is a field in your product model
+                          style: const TextStyle(
+                            fontSize: 10.0, // Reduced font size
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Free delivery', // Assuming 'originalPrice' is a field in your product model
+                          style: TextStyle(
+                            fontSize: 8.0,
+                            fontWeight: FontWeight.bold, // Reduced font size
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // ... other widgets ...
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -317,18 +493,123 @@ class CustomSearchDelegate extends SearchDelegate {
     final suggestions = dataList?.where((element) =>
         element!.name!.toLowerCase().startsWith(query.toLowerCase()));
 
-    return ListView(
-      children: suggestions!
-          .map((suggestion) => InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DetailsPage(suggestion!.name!)),
-                );
-              },
-              child: ListTile(title: Text(suggestion!.name!))))
-          .toList(),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 10.0,
+          mainAxisSpacing: 10.0,
+          childAspectRatio: 0.8,
+        ),
+        itemCount: suggestions!.length,
+        itemBuilder: (context, index) {
+          var suggestion = suggestions.elementAt(index);
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailsPage(suggestion!.name!),
+                ),
+              );
+            },
+            child: Card(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // AspectRatio(
+                  //   aspectRatio: 1.5,
+                  //   child: Image.network(
+                  //     suggestion!.image ?? 'https://via.placeholder.com/150',
+                  //     fit: BoxFit.cover,
+                  //   ),
+                  // ),
+                  // Padding(
+                  //   padding: EdgeInsets.all(5.0),
+                  //   child: Text(
+                  //     suggestion!.name!,
+                  //     style:
+                  //         TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+                  //   ),
+                  // ),
+                  AspectRatio(
+                    aspectRatio: 1.5,
+                    child: Image.network(
+                      suggestion!.image ?? 'https://via.placeholder.com/150',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Text(
+                      suggestion.description ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12.0),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Row(
+                      children: [
+                        const Text(
+                          ' TSH ', // Assuming 'originalPrice' is a field in your product model
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.bold, // Reduced font size
+                          ),
+                        ),
+                        Text(
+                          ' ${suggestion.price}', // Assuming 'originalPrice' is a field in your product model
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold, // Reduced font size
+                            decoration: (suggestion.discountPrice != null &&
+                                    suggestion.discountPrice != 0)
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (suggestion.discountPrice != null &&
+                      suggestion.discountPrice !=
+                          0) // Check if discount is not null or zero
+                    if (suggestion.discountPrice != null &&
+                        suggestion.discountPrice !=
+                            0) // Check if discount is not null or zero
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                        child: Text(
+                          'Discount: ${suggestion.discountPrice}%', // Assuming 'discount' is a field in your product model
+                          style: const TextStyle(
+                            fontSize: 10.0, // Reduced font size
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Free delivery', // Assuming 'originalPrice' is a field in your product model
+                          style: TextStyle(
+                            fontSize: 8.0,
+                            fontWeight: FontWeight.bold, // Reduced font size
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
