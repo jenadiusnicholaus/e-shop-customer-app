@@ -36,8 +36,8 @@ class CustomTheme {
       primaryColor: generateMaterialColorFromColor(
           Color.fromARGB(255, 238, 152, 152).withOpacity(.7)),
       // colorScheme: generateMaterialColorFromColor(Colors.red),
-      primarySwatch: generateMaterialColorFromColor(
-          Color.fromARGB(255, 255, 255, 255).withOpacity(.7)),
+      // primarySwatch: generateMaterialColorFromColor(
+      //     Color.fromARGB(255, 255, 255, 255).withOpacity(.7)),
       appBarTheme: const AppBarTheme(
           // backgroundColor: Theme.of(context).primaryColor
           // backgroundColor: primary,

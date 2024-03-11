@@ -16,15 +16,19 @@ class Environment {
   static const String PROD_BASE_URL = "";
 
   static const String DEV_BASE_URL = "http://192.168.1.181:8000/api/";
+  static const String IMAGE_URL = "http://192.168.1.181:8000/";
 
-//  static const String STAGING_BASE_URL = "http://localhost:8000/api/";
   String tenant_registration_sub_url =
       "user-auth/$API_VERSION/user-registration/";
   String tenant_validate_account_sub_url =
       "user-auth/$API_VERSION/activate-account/";
   String tenant_login_sub_url = "user-auth/$API_VERSION/token/login/";
 
-  static EnvironmentType environmentType = EnvironmentType.staging;
+  String all_products_sub_url = "products/$API_VERSION/all-products/";
+
+  String product_details_sub_url = "products/$API_VERSION/product-details/";
+
+  static EnvironmentType environmentType = EnvironmentType.dev;
 
   String get getBaseUrl {
     switch (environmentType) {

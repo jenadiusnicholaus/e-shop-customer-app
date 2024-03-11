@@ -1,19 +1,19 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:eshop/features/products/models.dart';
+import 'package:eshop/shared/environments/environment.dart';
+
+import 'models/prodict_details_model.dart';
 
 class ProductRepository {
-  Future<ProductModel> fetchProducts([String pageNo = '1']) async {
-    var headers = {
-      'Content-Type': 'application/json',
-      'Authorization':
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA5NjUyNDM4LCJpYXQiOjE3MDk1NjYwMzgsImp0aSI6IjdmMzQwMGE2MTI0NDQyMDliZDI3NWFjODcwMDA2YjhlIiwidXNlcl9pZCI6MiwiaXNfc3RhZmYiOnRydWUsInR5cGUiOiJDTElFTlQifQ.J_2GD_2jSPfdRkd47C-Py0mBpwlYfz28-cABG_EaN9E'
-    };
+  // produdct details
+  Environment environment = Environment.instance;
 
+  Future<ProductDetailsModel> getProductDetails(String id) async {
+    var headers = {'Cookie': 'sessionid=e1cpz4p1cnb8puq6xuxyytjydmfofyrv'};
     var dio = Dio();
     var response = await dio.request(
-      'http://192.168.1.181:8000//api/products/v1/all-products/?page=$pageNo',
+      '${environment.getBaseUrl}${environment.product_details_sub_url}?product_id=$id',
       options: Options(
         method: 'GET',
         headers: headers,
@@ -22,7 +22,7 @@ class ProductRepository {
 
     if (response.statusCode == 200) {
       print(json.encode(response.data));
-      return ProductModel.fromJson(response.data);
+      return ProductDetailsModel.fromJson(response.data);
     } else {
       print(response.statusMessage);
       throw Exception('Failed to load album');

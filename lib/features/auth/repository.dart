@@ -10,8 +10,7 @@ class AuthRepository {
     var headers = {
       'Content-Type': 'application/json',
       'Authorization':
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA1MTU5ODQ1LCJpYXQiOjE3MDUxNTQ0NDUsImp0aSI6IjhkNWY4YTU0YjZmZjQ5ZTBiNWY4MTIwNzJlYzVlOGU4IiwidXNlcl9pZCI6MTQsImlzX3N0YWZmIjp0cnVlLCJyb2xlIjoiQ0xJRU5UIn0.NxWIRi1Lx4PXqrdlm_qnHXzKDjgO0grVoszlEk9KcUA',
-      'Cookie': 'sessionid=e1cpz4p1cnb8puq6xuxyytjydmfofyrv'
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzEwMDU4ODUxLCJpYXQiOjE3MDk5NzI0NTEsImp0aSI6IjkyYzkwY2U2NjA2ZTRkNDg5Y2E4M2M3Y2MzNzRmYWFjIiwidXNlcl9pZCI6MSwiaXNfc3RhZmYiOnRydWUsInR5cGUiOiJDTElFTlQifQ.-ZZk2hNMHAGRTDaYK0EzANq-ukZih8TQvAHjflSR9TY'
     };
     var data = json.encode({"username": "admin", "password": "1234"});
     var dio = Dio();
