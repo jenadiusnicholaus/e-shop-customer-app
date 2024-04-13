@@ -28,6 +28,20 @@ class Environment {
 
   String product_details_sub_url = "products/$API_VERSION/product-details/";
 
+  // 'http://localhost:8000/api/authentication/v1/google-signin/',
+  String google_signin_sub_url = "authentication/$API_VERSION/google-signin/";
+
+  // http://localhost:8000/api/authentication/v1/user-contact-infos/
+
+  String user_contact_infos_sub_url =
+      "authentication/$API_VERSION/user-contact-infos/";
+
+  // http://localhost:8000/api/category/v1/mobile-category-list/
+  String category_list_sub_url = "category/$API_VERSION/mobile-category-list/";
+
+  // http://localhost:8000/api/authentication/v1/token/refresh/
+  String token_refresh_sub_url = "authentication/$API_VERSION/token/refresh/";
+
   static EnvironmentType environmentType = EnvironmentType.dev;
 
   String get getBaseUrl {

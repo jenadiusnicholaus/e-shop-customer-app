@@ -3,10 +3,8 @@ class ProductModel {
   dynamic next;
   dynamic previous;
   List<Results>? results;
-  int? pageSize;
 
-  ProductModel(
-      {this.count, this.next, this.previous, this.results, this.pageSize});
+  ProductModel({this.count, this.next, this.previous, this.results});
 
   ProductModel.fromJson(Map<String, dynamic> json) {
     count = json['count'];
@@ -18,18 +16,16 @@ class ProductModel {
         results!.add(Results.fromJson(v));
       });
     }
-    pageSize = json['page_size'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['count'] = this.count;
-    data['next'] = this.next;
-    data['previous'] = this.previous;
-    if (this.results != null) {
-      data['results'] = this.results!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['count'] = count;
+    data['next'] = next;
+    data['previous'] = previous;
+    if (results != null) {
+      data['results'] = results!.map((v) => v.toJson()).toList();
     }
-    data['page_size'] = this.pageSize;
     return data;
   }
 }
@@ -42,11 +38,15 @@ class Results {
   String? code;
   String? description;
   String? status;
-  dynamic? price;
-  dynamic? sellingPrice;
+  dynamic price;
+  dynamic sellingPrice;
   dynamic discountPrice;
   String? barcodeId;
   String? image;
+  dynamic published;
+  dynamic warranty;
+  int? warrantyDays;
+  List<ProductDeliveryInfos>? productDeliveryInfos;
 
   Results(
       {this.id,
@@ -60,7 +60,11 @@ class Results {
       this.sellingPrice,
       this.discountPrice,
       this.barcodeId,
-      this.image});
+      this.image,
+      this.published,
+      this.warranty,
+      this.warrantyDays,
+      this.productDeliveryInfos});
 
   Results.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -75,22 +79,75 @@ class Results {
     discountPrice = json['discount_price'];
     barcodeId = json['barcode_id'];
     image = json['image'];
+    published = json['published'];
+    warranty = json['warranty'];
+    warrantyDays = json['warranty_days'];
+    if (json['product_delivery_infos'] != null) {
+      productDeliveryInfos = <ProductDeliveryInfos>[];
+      json['product_delivery_infos'].forEach((v) {
+        productDeliveryInfos!.add(ProductDeliveryInfos.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['category'] = this.category;
-    data['client'] = this.client;
-    data['name'] = this.name;
-    data['code'] = this.code;
-    data['description'] = this.description;
-    data['status'] = this.status;
-    data['price'] = this.price;
-    data['selling_price'] = this.sellingPrice;
-    data['discount_price'] = this.discountPrice;
-    data['barcode_id'] = this.barcodeId;
-    data['image'] = this.image;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['category'] = category;
+    data['client'] = client;
+    data['name'] = name;
+    data['code'] = code;
+    data['description'] = description;
+    data['status'] = status;
+    data['price'] = price;
+    data['selling_price'] = sellingPrice;
+    data['discount_price'] = discountPrice;
+    data['barcode_id'] = barcodeId;
+    data['image'] = image;
+    data['published'] = published;
+    data['warranty'] = warranty;
+    data['warranty_days'] = warrantyDays;
+    if (productDeliveryInfos != null) {
+      data['product_delivery_infos'] =
+          productDeliveryInfos!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class ProductDeliveryInfos {
+  int? id;
+  int? product;
+  int? client;
+  dynamic freeDelivery;
+  int? deliveryDays;
+  dynamic deliveryCost;
+
+  ProductDeliveryInfos(
+      {this.id,
+      this.product,
+      this.client,
+      this.freeDelivery,
+      this.deliveryDays,
+      this.deliveryCost});
+
+  ProductDeliveryInfos.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    product = json['product'];
+    client = json['client'];
+    freeDelivery = json['free_delivery'];
+    deliveryDays = json['delivery_days'];
+    deliveryCost = json['delivery_cost'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['product'] = product;
+    data['client'] = client;
+    data['free_delivery'] = freeDelivery;
+    data['delivery_days'] = deliveryDays;
+    data['delivery_cost'] = deliveryCost;
     return data;
   }
 }

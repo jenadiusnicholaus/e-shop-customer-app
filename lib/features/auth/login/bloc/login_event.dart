@@ -9,3 +9,9 @@ class onLoginButtonPressed extends LoginEvent {
 
   onLoginButtonPressed({required this.email, required this.password});
 }
+
+final class OnGoogeLoginButtonPressed extends LoginEvent {
+  final String idToken;
+
+  OnGoogeLoginButtonPressed({required this.idToken});
+}

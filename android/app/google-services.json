@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "262033054844",
+    "project_id": "cartopia-168c0",
+    "storage_bucket": "cartopia-168c0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:262033054844:android:5c8c38e679bbb9713c3df9",
+        "android_client_info": {
+          "package_name": "com.cartopia.cartopia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "262033054844-28bads5qquvr7bhgmv6elqmkvtcir2v0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cartopia.cartopia",
+            "certificate_hash": "1fae94bff7ddfa11ad58064a4fe7353bf54aec7c"
+          }
+        },
+        {
+          "client_id": "262033054844-aq9ndvgqklgj360h5iiqv4ru8seetsjl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXeef-jTQMDD9btzF-ixfOH-haraA-JCE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "262033054844-aq9ndvgqklgj360h5iiqv4ru8seetsjl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "262033054844-nbm8uuv6nfunh7tp1i7n1ff85qemqhhr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.eshop"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

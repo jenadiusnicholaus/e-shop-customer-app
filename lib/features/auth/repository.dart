@@ -1,16 +1,17 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:eshop/features/auth/login/models.dart';
+import 'package:eshop/shared/environments/environment.dart';
 
 class AuthRepository {
+  Environment environment = Environment.instance;
   AuthRepository();
 
   Future<LoginModel> login(String email, String password) async {
     var headers = {
       'Content-Type': 'application/json',
-      'Authorization':
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzEwMDU4ODUxLCJpYXQiOjE3MDk5NzI0NTEsImp0aSI6IjkyYzkwY2U2NjA2ZTRkNDg5Y2E4M2M3Y2MzNzRmYWFjIiwidXNlcl9pZCI6MSwiaXNfc3RhZmYiOnRydWUsInR5cGUiOiJDTElFTlQifQ.-ZZk2hNMHAGRTDaYK0EzANq-ukZih8TQvAHjflSR9TY'
     };
     var data = json.encode({"username": "admin", "password": "1234"});
     var dio = Dio();
@@ -28,6 +29,28 @@ class AuthRepository {
       return LoginModel.fromJson(response.data);
     } else {
       print(response.statusMessage);
+      throw Exception('Failed to load album');
+    }
+  }
+
+  Future<LoginModel> loginWithGoogle({String? idToken}) async {
+    var headers = {'Content-Type': 'application/json'};
+    var data = json.encode({"access_token": idToken});
+    var dio = Dio();
+    var response = await dio.request(
+      environment.getBaseUrl + environment.google_signin_sub_url,
+      options: Options(
+        method: 'POST',
+        headers: headers,
+      ),
+      data: data,
+    );
+
+    if (response.statusCode == 200) {
+      log(json.encode(response.data));
+      return LoginModel.fromJson(response.data);
+    } else {
+      log(response.statusMessage.toString());
       throw Exception('Failed to load album');
     }
   }

@@ -5,17 +5,16 @@ sealed class ShoppingCartEvent {}
 
 final class AddItemToCart extends ShoppingCartEvent {
   final Results product;
+  final String productColor;
+  final bool delivered;
 
-  AddItemToCart({required this.product});
+  AddItemToCart(
+      {required this.product,
+      required this.productColor,
+      required this.delivered});
 }
 
 class GetCartItems extends ShoppingCartEvent {}
-
-class RemoveItemFromCart extends ShoppingCartEvent {
-  final Results product;
-
-  RemoveItemFromCart({required this.product});
-}
 
 // update card
 
@@ -29,3 +28,10 @@ class UpdateCartItem extends ShoppingCartEvent {
 class ClearCart extends ShoppingCartEvent {}
 
 class GetTotalAmount extends ShoppingCartEvent {}
+
+// context.read<ShoppingCartBloc>().add(RemoveCartItem(id: cartItems[index]['id']));
+class RemoveCartItem extends ShoppingCartEvent {
+  final String id;
+
+  RemoveCartItem({required this.id});
+}

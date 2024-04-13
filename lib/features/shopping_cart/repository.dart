@@ -16,13 +16,15 @@ class ShoppingCartRepo {
         .toList();
   }
 
-  Future<void> addItemToShoppingCart({Results? product}) async {
+  Future<void> addItemToShoppingCart(
+      {Results? product, String? productColor, delivery}) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> cartItems = prefs.getStringList('cartItems') ?? [];
 
     // Check if the product is already in the cart
     int index = cartItems.indexWhere((item) {
       Map<String, dynamic> decodedItem = jsonDecode(item);
+
       return decodedItem['product']['id'] == product?.id;
     });
 
@@ -30,13 +32,19 @@ class ShoppingCartRepo {
       // If the product is already in the cart, update the quantity
       Map<String, dynamic> decodedItem = jsonDecode(cartItems[index]);
       decodedItem['quantity'] += 1;
+      if (productColor != null) {
+        decodedItem['productColor'] = productColor;
+        decodedItem['delivered'] = delivery;
+      }
       cartItems[index] = jsonEncode(decodedItem);
     } else {
       // If the product is not in the cart, add it
       cartItems.add(jsonEncode({
         'id': Uuid().v4(),
         'product': product?.toJson(),
+        'productColor': productColor,
         'quantity': 1,
+        'delivered': delivery,
       }));
     }
 

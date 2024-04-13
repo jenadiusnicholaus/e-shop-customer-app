@@ -18,3 +18,23 @@ final class LoginFailure extends LoginState {
 
   LoginFailure({required this.error});
 }
+
+final class LoginError extends LoginState {
+  final String error;
+
+  LoginError({required this.error});
+}
+
+// ============== google login ==============
+final class LoginGoogleLoading extends LoginState {}
+
+final class LoginGoogleSuccess extends LoginState {
+  final String message;
+  LoginGoogleSuccess({required this.message});
+}
+
+final class LoginGoogleFailure extends LoginState {
+  final String error;
+
+  LoginGoogleFailure({required this.error});
+}

@@ -18,62 +18,14 @@ class CustomTheme {
     });
   }
 
-  // static final defaultPinTheme = PinTheme(
-  //   width: 50,
-  //   height: 50,
-  //   textStyle: TextStyle(
-  //       fontSize: 20,
-  //       color: Color.fromARGB(255, 40, 81, 117),
-  //       fontWeight: FontWeight.w600),
-  //   decoration: BoxDecoration(
-  //     border: Border.all(color: Color.fromARGB(255, 109, 165, 211)),
-  //     borderRadius: BorderRadius.circular(20),
-  //   ),
-  // );
-
   static ThemeData get lightTheme {
     return ThemeData(
-      primaryColor: generateMaterialColorFromColor(
-          Color.fromARGB(255, 238, 152, 152).withOpacity(.7)),
+      primaryColor:
+          generateMaterialColorFromColor(Color.fromARGB(255, 207, 12, 12)),
       // colorScheme: generateMaterialColorFromColor(Colors.red),
-      // primarySwatch: generateMaterialColorFromColor(
-      //     Color.fromARGB(255, 255, 255, 255).withOpacity(.7)),
-      appBarTheme: const AppBarTheme(
-          // backgroundColor: Theme.of(context).primaryColor
-          // backgroundColor: primary,
-          ),
+      primarySwatch: Colors.amber,
+
       useMaterial3: true,
-
-      iconTheme: const IconThemeData(
-        color: Color.fromARGB(255, 159, 155, 155),
-      ),
-
-      textTheme: TextTheme(
-        bodyText1: GoogleFonts.montserrat(
-          fontSize: 12,
-          color: Colors.black,
-        ),
-        bodyText2: GoogleFonts.montserrat(
-          fontSize: 14,
-          color: Colors.black,
-        ),
-        headline3: GoogleFonts.montserrat(
-          fontSize: 24,
-          color: Colors.black,
-        ),
-        headline4: GoogleFonts.montserrat(
-            fontSize: 17, color: Colors.black, fontWeight: FontWeight.bold),
-        headline5: GoogleFonts.montserrat(
-            fontSize: 16, color: Colors.black, fontWeight: FontWeight.w300),
-        headline6: GoogleFonts.montserrat(
-          fontSize: 30,
-          color: Colors.black,
-        ),
-        caption: GoogleFonts.montserrat(
-          fontSize: 12,
-          color: const Color.fromARGB(255, 85, 74, 74),
-        ),
-      ),
     );
   }
 

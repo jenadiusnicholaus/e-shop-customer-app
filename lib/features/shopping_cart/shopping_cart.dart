@@ -1,7 +1,14 @@
+import 'package:eshop/features/auth/login/login.dart';
+import 'package:eshop/features/checkout/checkout.dart';
+import 'package:eshop/features/products/models/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../shared/environments/navigationn_state.dart';
+import '../auth/login/bloc/login_bloc.dart';
+import '../checkout/bloc/checkout_bloc.dart';
 import 'bloc/shopping_cart_bloc.dart';
+import '../../shared/widgets/cart_item.dart';
 
 class ShoppingCartPage extends StatefulWidget {
   ShoppingCartPage({
@@ -37,46 +44,15 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                 itemCount: cartItems.length,
                 separatorBuilder: (context, index) => Divider(),
                 itemBuilder: (context, index) {
-                  return ListTile(
-                    leading:
-                        Image.network(cartItems[index]['product']['image']),
-                    title: Text(cartItems[index]['product']['name']),
-                    subtitle:
-                        Text('${cartItems[index]['product']['price']} TZS'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.remove),
-                          onPressed: () {
-                            int currentQuantity = cartItems[index]['quantity'];
-                            if (currentQuantity > 1) {
-                              // updateQuantity(
-                              //     cartItems[index]['id'], currentQuantity - 1);
-                              context
-                                  .read<ShoppingCartBloc>()
-                                  .add(UpdateCartItem(
-                                    id: cartItems[index]['id'],
-                                    quantity: currentQuantity - 1,
-                                  ));
-                            }
-                          },
-                        ),
-                        Text('${cartItems[index]['quantity']}'),
-                        IconButton(
-                          icon: Icon(Icons.add),
-                          onPressed: () {
-                            int currentQuantity = cartItems[index]['quantity'];
-                            // updateQuantity(
-                            //     cartItems[index]['id'], currentQuantity + 1);
-                            context.read<ShoppingCartBloc>().add(UpdateCartItem(
-                                  id: cartItems[index]['id'],
-                                  quantity: currentQuantity + 1,
-                                ));
-                          },
-                        ),
-                      ],
-                    ),
+                  Results product =
+                      Results.fromJson(cartItems[index]['product']);
+                  Color color = Color(int.parse(
+                      'FF${cartItems[index]['productColor'].substring(1)}',
+                      radix: 16));
+                  return CartItem(
+                    product: product,
+                    cartItems: cartItems[index],
+                    selectedColor: color,
                   );
                 },
               );
@@ -103,45 +79,17 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                                 borderRadius: BorderRadius.circular(10),
                               )),
                           onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: const Text('Confirm Purchase'),
-                                  content: const Text(
-                                      'Are you sure you want to purchase these items?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        context
-                                            .read<ShoppingCartBloc>()
-                                            .add(ClearCart());
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('Remove all',
-                                          style: TextStyle(color: Colors.red)),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('Cancel',
-                                          style: TextStyle(color: Colors.red)),
-                                    ),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.green,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          )),
-                                      onPressed: () async {},
-                                      child: const Text('Confirm'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
+                            NavigationState.checkoutpage;
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //         builder: (context) => const LoginPage()));
+
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const CheckoutPage()));
                           },
                           child: const Text('Purchase',
                               style: TextStyle(color: Colors.white)),

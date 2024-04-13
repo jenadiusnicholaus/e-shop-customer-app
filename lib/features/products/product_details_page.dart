@@ -1,15 +1,9 @@
-import 'dart:convert';
-
 import 'package:eshop/features/products/models/product_model.dart';
 import 'package:eshop/features/shopping_cart/shopping_cart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
-
 import '../../shared/environments/environment.dart';
 import '../shopping_cart/bloc/shopping_cart_bloc.dart';
 import 'bloc/product_bloc.dart';
@@ -28,6 +22,11 @@ class ProductsDetailsPage extends StatefulWidget {
 class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
   late ScrollController _scrollController;
   bool _showPriceInAppBar = false;
+  String? selectedColorCode;
+  bool colorSelected = false;
+  final GlobalKey _key = GlobalKey();
+  final GlobalKey _fabKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -65,21 +64,48 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
           title,
           style: Theme.of(context).textTheme.bodySmall,
         ),
-        const Divider(),
-        Wrap(
-          spacing: 10,
-          children: colorCodes.map((colorCode) {
-            final color = Color(
-                int.parse(colorCode.substring(1, 7), radix: 16) + 0xFF000000);
-            return Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
+        Divider(
+          color: !colorSelected ? Colors.red : Colors.grey,
+        ),
+        Stack(
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: Wrap(
+                spacing: 10,
+                children: colorCodes.map((colorCode) {
+                  final color = Color(
+                      int.parse(colorCode.substring(1, 7), radix: 16) +
+                          0xFF000000);
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        colorSelected = true;
+                        selectedColorCode = colorCode;
+                      });
+                    },
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                        border: selectedColorCode == colorCode
+                            ? Border.all(width: 2, color: Colors.black)
+                            : null,
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
-            );
-          }).toList(),
+            ),
+            Positioned(
+                right: 0,
+                child: Text(
+                  colorSelected ? '' : 'Select product color',
+                  style: const TextStyle(color: Colors.red, fontSize: 12.0),
+                ))
+          ],
         ),
         const SizedBox(height: 20),
       ],
@@ -175,7 +201,7 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
         ),
         const Divider(),
         Container(
-          height: 150, // Reduced height
+          height: 80, // Reduced height
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: imageUrls.length,
@@ -319,37 +345,71 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
   Widget buildPriceRow() {
     final formatCurrency = NumberFormat.simpleCurrency(locale: 'sw_TZ');
 
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.product.discountPrice != null &&
-            widget.product.discountPrice > 0)
-          Flexible(
-            child: Text('  ${formatCurrency.format(widget.product.price)} ',
-                style: Theme.of(context).textTheme.caption!.copyWith(
-                    decoration: TextDecoration.lineThrough,
-                    color: Colors.grey.shade600) as TextStyle),
-          ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Text(
-            widget.product.discountPrice != null &&
-                    widget.product.discountPrice > 0
-                ? ' ${formatCurrency.format(widget.product.discountPrice)} '
-                : ' ${formatCurrency.format(widget.product.price)} ',
-            style: const TextStyle(
-                fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red),
-          ),
-        ),
-        if (widget.product.discountPrice != null &&
-            widget.product.discountPrice > 0)
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text(
-              '${((widget.product.price - widget.product.discountPrice!) / widget.product.price * 100).round()}% off',
-              style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+        Row(
+          children: [
+            if (widget.product.discountPrice != null &&
+                widget.product.discountPrice > 0)
+              Flexible(
+                child: Text('  ${formatCurrency.format(widget.product.price)} ',
+                    style: Theme.of(context).textTheme.caption!.copyWith(
+                        decoration: TextDecoration.lineThrough,
+                        color: Colors.grey.shade600)),
+              ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                widget.product.discountPrice != null &&
+                        widget.product.discountPrice > 0.0
+                    ? ' ${formatCurrency.format(widget.product.discountPrice)} '
+                    : ' ${formatCurrency.format(widget.product.sellingPrice)} ',
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red),
+              ),
             ),
-          ),
+            if (widget.product.discountPrice != null &&
+                widget.product.discountPrice > 0)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  '${((widget.product.price - widget.product.discountPrice!) / widget.product.price * 100).round()}% off',
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red),
+                ),
+              ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 15.0),
+          child: (widget.product.productDeliveryInfos!.isNotEmpty &&
+                  widget.product.productDeliveryInfos!.first.freeDelivery ==
+                      true)
+              ? const Text(
+                  'Free Delivery',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 10.0,
+                  ),
+                )
+              : Text(
+                  widget.product.productDeliveryInfos!.isNotEmpty &&
+                          widget.product.productDeliveryInfos!.first
+                                  .deliveryCost ==
+                              0.0
+                      ? 'Delivery Cost: TSh ${widget.product.productDeliveryInfos!.first.deliveryCost}'
+                      : '',
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10.0,
+                  )),
+        ),
       ],
     );
   }
@@ -374,8 +434,6 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
     }
   }
 
-// Usage
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -387,30 +445,65 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
             floating: false,
             pinned: true,
             title: _showPriceInAppBar
-                ? Row(
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (widget.product.discountPrice != null &&
-                          widget.product.discountPrice > 0)
-                        Text(
-                          'TSh ${widget.product.price}',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 20.0,
-                            decoration: TextDecoration.lineThrough,
+                      Row(
+                        children: [
+                          if (widget.product.discountPrice != null &&
+                              widget.product.discountPrice > 0)
+                            Text(
+                              'TSh ${widget.product.price}',
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 20.0,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Text(
+                              widget.product.discountPrice != null &&
+                                      widget.product.discountPrice > 0
+                                  ? 'TSh ${widget.product.discountPrice}'
+                                  : 'TSh ${widget.product.price}',
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 20.0,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
+                      ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          widget.product.discountPrice != null &&
-                                  widget.product.discountPrice > 0
-                              ? 'TSh ${widget.product.discountPrice}'
-                              : 'TSh ${widget.product.price}',
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 20.0,
-                          ),
-                        ),
+                        padding: const EdgeInsets.only(left: 13.0),
+                        child: (widget
+                                    .product.productDeliveryInfos!.isNotEmpty &&
+                                widget.product.productDeliveryInfos?.first
+                                        .deliveryCost ==
+                                    0.0 &&
+                                widget.product.productDeliveryInfos?.first
+                                        .freeDelivery ==
+                                    true)
+                            ? const Text(
+                                'Free Delivery',
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 10.0,
+                                ),
+                              )
+                            : Text(
+                                widget.product.productDeliveryInfos!
+                                            .isNotEmpty &&
+                                        widget.product.productDeliveryInfos
+                                                ?.first.deliveryCost !=
+                                            0
+                                    ? 'Delivery Cost: TSh ${widget.product.productDeliveryInfos?.first.deliveryCost}'
+                                    : '',
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 10.0,
+                                )),
                       ),
                     ],
                   )
@@ -429,6 +522,7 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
                               .topRight, // Align close button to top right
                           children: [
                             Image.network(
+                              key: _key,
                               widget.product.image ??
                                   'https://via.placeholder.com/150',
                               fit: BoxFit.cover,
@@ -553,14 +647,14 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
                                                             color.color!)
                                                         .toList(),
                                                   ),
-                                                  buildSizeSection(
-                                                    'Product Sizes',
-                                                    state.productDetails.data!
-                                                        .productSize!
-                                                        .map((size) =>
-                                                            size.size!)
-                                                        .toList(),
-                                                  ),
+                                                  // buildSizeSection(
+                                                  //   'Product Sizes',
+                                                  //   state.productDetails.data!
+                                                  //       .productSize!
+                                                  //       .map((size) =>
+                                                  //           size.size!)
+                                                  //       .toList(),
+                                                  // ),
                                                   // ignore: prefer_is_empty
 
                                                   buildSpecSection(
@@ -613,8 +707,10 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
       // add a floading action button for go to cart
 
       floatingActionButton: FloatingActionButton(
+        key: _fabKey,
         onPressed: () async {
           // List<Map<String, dynamic>> cartItems = await getCartItems();
+          // animateItemToCart(context, _key);
 
           Navigator.push(
             context,
@@ -657,15 +753,52 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
           children: [
             ElevatedButton.icon(
               onPressed: () async {
-                context.read<ShoppingCartBloc>().add(AddItemToCart(
-                      product: widget.product,
-                    ));
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Product added to cart'),
-                  ),
-                );
+                if (selectedColorCode != '') {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Delivery Confirmation'),
+                        content:
+                            const Text('Do you want the product delivered?'),
+                        actions: <Widget>[
+                          ElevatedButton(
+                            child: const Text('Yes'),
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.green),
+                            ),
+                            onPressed: () {
+                              if (selectedColorCode != null) {
+                                context
+                                    .read<ShoppingCartBloc>()
+                                    .add(AddItemToCart(
+                                      delivered: true,
+                                      productColor: selectedColorCode ?? "",
+                                      product: widget.product,
+                                    ));
+                                Navigator.of(context).pop();
+                              }
+                            },
+                          ),
+                          TextButton(
+                            child: const Text(
+                              'No',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                } else {
+                  setState(() {
+                    colorSelected = false;
+                  });
+                }
               },
               icon: const Icon(Icons.shopping_cart, color: Colors.white),
               label: const Text('Add to Cart'),
@@ -693,5 +826,59 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
         ),
       ],
     );
+  }
+}
+
+class AnimatedItem extends StatefulWidget {
+  final Offset startPosition;
+  final Offset endPosition;
+  final Widget child;
+
+  AnimatedItem(
+      {required this.startPosition,
+      required this.endPosition,
+      required this.child});
+
+  @override
+  _AnimatedItemState createState() => _AnimatedItemState();
+}
+
+class _AnimatedItemState extends State<AnimatedItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 2));
+    _animation =
+        Tween<Offset>(begin: widget.startPosition, end: widget.endPosition)
+            .animate(_controller);
+
+    _controller.forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Positioned(
+          left: _animation.value.dx,
+          top: _animation.value.dy,
+          child: child!,
+        );
+      },
+      child: widget.child,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
