@@ -220,8 +220,11 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
                               .topRight, // Align close button to top right
                           children: [
                             Image.network(
-                              Environment.IMAGE_URL + imageUrls[index],
-                              fit: BoxFit.cover,
+                              Environment.environmentType ==
+                                      EnvironmentType.remote_dev
+                                  ? imageUrls[index]
+                                  : Environment.IMAGE_URL + imageUrls[index],
+                              fit: BoxFit.contain,
                               height: double.infinity,
                               width: double.infinity,
                             ),
@@ -251,7 +254,10 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
                   borderRadius: BorderRadius.circular(10),
                   child: FadeInImage.assetNetwork(
                     placeholder: 'assets/images/loading.gif',
-                    image: Environment.IMAGE_URL + imageUrls[index],
+                    image: Environment.environmentType ==
+                            EnvironmentType.remote_dev
+                        ? imageUrls[index]
+                        : Environment.IMAGE_URL + imageUrls[index],
                     fit: BoxFit.cover,
                     width: 100, // Reduced width
                   ),
@@ -610,7 +616,7 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
                                           'Product Images',
                                           state.productDetails.data!
                                               .productImages!
-                                              .map((image) => image.image!)
+                                              .map((image) => image.image ?? "")
                                               .toList(),
                                         ),
                                       ],

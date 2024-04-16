@@ -16,11 +16,11 @@ class ProductRepository {
     );
 
     log(response.statusCode.toString());
+    log(response.data.toString());
 
     if (response.statusCode == 200) {
       return ProductDetailsModel.fromJson(response.data);
     } else {
-      
       throw Exception('Failed to load album');
     }
   }
