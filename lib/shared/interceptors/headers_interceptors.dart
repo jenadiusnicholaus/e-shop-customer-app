@@ -36,12 +36,10 @@ class DioInterceptor extends Interceptor {
     return super.onResponse(response, handler);
   }
 
+  @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // Check if the user is unauthorized.
     if (err.response?.statusCode == 401) {
-      log("Token expired");
-      log(err.message.toString());
-      log(err.response!.statusCode.toString());
       // Refresh the user's authentication token.
       Response res = await refreshToken();
       await SecureLocalStorage.writeValue("access_token", res.data['access']);

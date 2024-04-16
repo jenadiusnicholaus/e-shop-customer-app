@@ -1,12 +1,8 @@
-import 'package:eshop/features/auth/login/login.dart';
 import 'package:eshop/features/checkout/checkout.dart';
 import 'package:eshop/features/products/models/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../shared/environments/navigationn_state.dart';
-import '../auth/login/bloc/login_bloc.dart';
-import '../checkout/bloc/checkout_bloc.dart';
 import 'bloc/shopping_cart_bloc.dart';
 import '../../shared/widgets/cart_item.dart';
 
@@ -42,7 +38,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
               final cartItems = state.cartItems;
               return ListView.separated(
                 itemCount: cartItems.length,
-                separatorBuilder: (context, index) => Divider(),
+                separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
                   Results product =
                       Results.fromJson(cartItems[index]['product']);

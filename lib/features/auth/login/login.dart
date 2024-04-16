@@ -143,16 +143,19 @@ class _LoginPageState extends State<LoginPage> {
 
                     // or connect with google
 
-                    ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            )),
-                        onPressed: () {
-                          signInWithGoogle(context);
-                        },
-                        child: const Text('Google')),
+                    Center(
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              )),
+                          onPressed: () {
+                            signInWithGoogle(context);
+                          },
+                          child: const Text('Google',
+                              style: TextStyle(color: Colors.white))),
+                    ),
                   ],
                 ),
               ),

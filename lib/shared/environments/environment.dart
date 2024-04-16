@@ -1,6 +1,6 @@
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
-enum EnvironmentType { prod, staging, dev }
+enum EnvironmentType { prod, staging, local_dev, remote_dev }
 
 class Environment {
   static final Environment _instance = Environment._init();
@@ -12,6 +12,9 @@ class Environment {
   // https://travel-monkey-app-backend-staging.azurewebsites.net/api/user-auth/v1/user-registration/
 
   static const String STAGING_BASE_URL = "";
+
+  static const String REMOTE_DEV_BASE_URL =
+      "https://e-shop-api-dev.azurewebsites.net/api/";
 
   static const String PROD_BASE_URL = "";
 
@@ -42,7 +45,7 @@ class Environment {
   // http://localhost:8000/api/authentication/v1/token/refresh/
   String token_refresh_sub_url = "authentication/$API_VERSION/token/refresh/";
 
-  static EnvironmentType environmentType = EnvironmentType.dev;
+  static EnvironmentType environmentType = EnvironmentType.remote_dev;
 
   String get getBaseUrl {
     switch (environmentType) {
@@ -50,8 +53,10 @@ class Environment {
         return STAGING_BASE_URL;
       case EnvironmentType.prod:
         return PROD_BASE_URL;
-      case EnvironmentType.dev:
+      case EnvironmentType.local_dev:
         return DEV_BASE_URL;
+      case EnvironmentType.remote_dev:
+        return REMOTE_DEV_BASE_URL;
     }
   }
 }
