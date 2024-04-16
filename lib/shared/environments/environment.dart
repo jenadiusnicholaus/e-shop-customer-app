@@ -15,34 +15,20 @@ class Environment {
 
   static const String REMOTE_DEV_BASE_URL =
       "https://e-shop-api-dev.azurewebsites.net/api/";
-
   static const String PROD_BASE_URL = "";
-
-  static const String DEV_BASE_URL = "http://192.168.1.181:8000/api/";
-  static const String IMAGE_URL = "http://192.168.1.181:8000/";
+  static const String LOCAL_DEV_BASE_URL = "http://192.168.1.181:8000/api/";
 
   String tenant_registration_sub_url =
       "user-auth/$API_VERSION/user-registration/";
   String tenant_validate_account_sub_url =
       "user-auth/$API_VERSION/activate-account/";
   String tenant_login_sub_url = "user-auth/$API_VERSION/token/login/";
-
   String all_products_sub_url = "products/$API_VERSION/all-products/";
-
   String product_details_sub_url = "products/$API_VERSION/product-details/";
-
-  // 'http://localhost:8000/api/authentication/v1/google-signin/',
   String google_signin_sub_url = "authentication/$API_VERSION/google-signin/";
-
-  // http://localhost:8000/api/authentication/v1/user-contact-infos/
-
   String user_contact_infos_sub_url =
       "authentication/$API_VERSION/user-contact-infos/";
-
-  // http://localhost:8000/api/category/v1/mobile-category-list/
   String category_list_sub_url = "category/$API_VERSION/mobile-category-list/";
-
-  // http://localhost:8000/api/authentication/v1/token/refresh/
   String token_refresh_sub_url = "authentication/$API_VERSION/token/refresh/";
 
   static EnvironmentType environmentType = EnvironmentType.remote_dev;
@@ -54,9 +40,15 @@ class Environment {
       case EnvironmentType.prod:
         return PROD_BASE_URL;
       case EnvironmentType.local_dev:
-        return DEV_BASE_URL;
+        return LOCAL_DEV_BASE_URL;
       case EnvironmentType.remote_dev:
         return REMOTE_DEV_BASE_URL;
     }
   }
+
+    static  String IMAGE_URL =  (environmentType == EnvironmentType.remote_dev)
+      ? "https://e-shop-api-dev.azurewebsites.net"
+      : "http://192.168.1.181:8000/"
+    
+   
 }
