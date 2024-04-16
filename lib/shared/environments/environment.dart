@@ -46,9 +46,7 @@ class Environment {
     }
   }
 
-    static  String IMAGE_URL =  (environmentType == EnvironmentType.remote_dev)
+  static String IMAGE_URL = (environmentType == EnvironmentType.remote_dev)
       ? "https://e-shop-api-dev.azurewebsites.net"
-      : "http://192.168.1.181:8000/"
-    
-   
+      : "http://192.168.1.181:8000/";
 }
