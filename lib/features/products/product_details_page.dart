@@ -237,7 +237,8 @@ class _ProductsDetailsPageState extends State<ProductsDetailsPage> {
                                   shape: BoxShape.circle,
                                 ),
                                 child: IconButton(
-                                  icon: Icon(Icons.close, color: Colors.white),
+                                  icon: const Icon(Icons.close,
+                                      color: Colors.white),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
